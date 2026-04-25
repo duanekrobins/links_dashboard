@@ -1,0 +1,11 @@
+itemId,company,type,model,projectName,chatName,details,url,importance,additionalNotes,dashboard,category,tags,favorite
+WORK_001,Utah,Portal,,Utah Employee Gateway,,State employee SSO gateway,https://gateway.utah.gov/,High,,Work,Core Work,"sso, login, utah",TRUE
+WORK_002,Utah,Portal,,DTS Service Portal,,IT service desk portal,https://services.dts.utah.gov/esc,High,,Work,Core Work,"support, dts, it",TRUE
+WORK_003,CGI,Jira,,UTADV4 Jira Project,,Advantage 4 project board,https://proactionus.ent.cgi.com/jira/projects/UTADV4/summary,High,,Work,Core Work,"jira, advantage4, utadv4",TRUE
+WORK_004,Utah,Reference,,FINET SH1 API List,,Environment API list,https://finet-sh1.utah.gov/acsh1-utdgo/apilist.html,Medium,,Work,FINET / Advantage 4,"finet, sh1, api",FALSE
+AI_001,OpenAI,ChatGPT,Auto,TestSavvy Automation Intelligence,TestSavvy Script Analysis,This is a ChatGPT Agent that is capable of processing thousands of files and producting output that is critical to understanding current TestSavvy script functionalities.,https://chatgpt.com/share/69b6da8a-e9e8-800e-aea2-d06b5cd96692,Highest,,AI,OpenAI Chats,"chatgpt, testsavvy, agent",TRUE
+AI_002,OpenAI,ChatGPT,,Playwright for Advantage 4,,,https://chatgpt.com/share/69b319ab-2c10-800e-ab44-1af41ee156a2,Medium,,AI,OpenAI Chats,"chatgpt, playwright, advantage4",FALSE
+AI_003,OpenAI,ChatGPT,Auto,Oracle DB Queries,,,https://chatgpt.com/share/69b31c01-3068-800e-bb12-c5687bfc24e0,High,,AI,OpenAI Chats,"chatgpt, oracle, sql",TRUE
+AI_004,OpenAI,ChatGPT,Auto,JQL for Assigned Completed Issues,,,https://chatgpt.com/share/69b32cb4-5144-800e-811d-644d6f9829bf,Medium,,AI,OpenAI Chats,"chatgpt, jira, jql",FALSE
+AI_005,OpenAI,ChatGPT,Auto,TestSavvy Loader,,,https://chatgpt.com/share/69b34264-2c68-800e-b634-2e5dd4cc885c,,,AI,OpenAI Chats,"chatgpt, testsavvy, loader",FALSE
+AI_006,OpenAI,ChatGPT,,TestSavvy Agent Design,,,https://chatgpt.com/share/69b3475a-7f80-800e-a4d2-116f59ce06d0,,,AI,OpenAI Chats,"chatgpt, testsavvy, design",FALSE
