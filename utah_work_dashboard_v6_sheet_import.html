@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Utah Command Center v6</title>
+  <style>
+    :root { --shadow: 0 16px 38px rgba(0,0,0,.18); --radius-xl: 20px; --radius-lg: 16px; --radius-md: 12px; --transition: .18s ease; }
+    html[data-theme="dark"] {
+      --bg1:#08111f; --bg2:#0b1220; --flare1:rgba(96,165,250,.14); --flare2:rgba(34,197,94,.10);
+      --panel:rgba(17,24,39,.92); --card:#0f1c33; --card2:#10192c; --input:#091224; --text:#e5e7eb; --muted:#94a3b8;
+      --border:#334155; --accent:#60a5fa; --accent2:#22c55e; --danger:#ef4444; --warn:#f59e0b; --pill-border:rgba(96,165,250,.35);
+      --pill-bg:rgba(96,165,250,.12); --pill-text:#dbeafe; --tag-bg:rgba(148,163,184,.10); --tag-border:rgba(148,163,184,.3);
+    }
+    html[data-theme="light"] {
+      --bg1:#eef4fb; --bg2:#f8fbff; --flare1:rgba(59,130,246,.10); --flare2:rgba(16,185,129,.08);
+      --panel:rgba(255,255,255,.96); --card:#ffffff; --card2:#f8fafc; --input:#ffffff; --text:#0f172a; --muted:#475569;
+      --border:#cbd5e1; --accent:#2563eb; --accent2:#059669; --danger:#dc2626; --warn:#d97706; --pill-border:rgba(37,99,235,.22);
+      --pill-bg:rgba(37,99,235,.08); --pill-text:#1d4ed8; --tag-bg:rgba(148,163,184,.10); --tag-border:rgba(148,163,184,.25); --shadow: 0 10px 26px rgba(15,23,42,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:Arial,Helvetica,sans-serif; color:var(--text);
+      background:radial-gradient(circle at top right,var(--flare1),transparent 28%),radial-gradient(circle at top left,var(--flare2),transparent 20%),linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 100%);
+    }
+    .wrap{max-width:1680px;margin:0 auto;padding:18px}
+    .panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-xl);box-shadow:var(--shadow)}
+    .hero{padding:20px;margin-bottom:16px}
+    .hero-top{display:flex;justify-content:space-between;gap:14px;align-items:start;flex-wrap:wrap}
+    h1{margin:0 0 8px 0;font-size:32px}
+    .sub{color:var(--muted);line-height:1.5;max-width:1000px}
+    .stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .pill{padding:8px 12px;border-radius:999px;font-size:13px;border:1px solid var(--pill-border);background:var(--pill-bg);color:var(--pill-text)}
+    .dashboard-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 8px}
+    .tab-btn{padding:10px 12px;border-radius:999px}
+    .tab-btn.active{border-color:var(--accent);color:var(--accent)}
+    .favorites-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:14px}
+    .fav-tile{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px;text-decoration:none;color:var(--text)}
+    .toolbar{margin-top:16px;display:grid;grid-template-columns:minmax(220px,1.2fr) repeat(10,auto);gap:10px;align-items:center}
+    input,select,button,textarea{background:var(--input);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;font-size:14px}
+    textarea{min-height:88px;resize:vertical}
+    button{cursor:pointer}
+    button:hover,input:hover,select:hover,textarea:hover{border-color:var(--accent)}
+    .layout{display:grid;grid-template-columns:1fr 410px;gap:16px;align-items:start}
+    .main-col{display:flex;flex-direction:column;gap:16px}
+    .section{padding:16px}
+    .side-title{margin:0 0 10px;font-size:20px}
+    .muted{color:var(--muted)}
+    .category{background:var(--panel);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:16px}
+    .category.collapsed .links-grid{display:none}
+    .category-header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+    h2{margin:0;font-size:22px}
+    .links-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;min-height:250px;display:flex;flex-direction:column;gap:8px;position:relative}
+    .title{color:var(--text);text-decoration:none;font-weight:700;font-size:16px;line-height:1.3;padding-right:30px}
+    .domain{color:var(--accent);font-size:12px;word-break:break-all;display:flex;align-items:center;gap:6px}
+    .meta{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;font-size:12px;color:var(--muted)}
+    .purpose{color:var(--muted);font-size:13px;line-height:1.45;flex:1}
+    .tag-row{display:flex;flex-wrap:wrap;gap:6px}
+    .tag{font-size:11px;padding:4px 8px;border-radius:999px;border:1px solid var(--tag-border);background:var(--tag-bg);color:var(--text)}
+    .card-actions,.stack{display:flex;flex-wrap:wrap;gap:8px}
+    .mini-btn{font-size:12px;padding:8px 10px;border-radius:10px;border:1px solid var(--border);background:var(--input);color:var(--text);text-decoration:none}
+    .admin-card{background:var(--card2);border:1px solid var(--border);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px}
+    .admin-list{display:flex;flex-direction:column;gap:8px;max-height:280px;overflow:auto}
+    .admin-row{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--input)}
+    .small{font-size:12px;color:var(--muted)}
+    .hidden{display:none !important}
+    .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,.72);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}
+    .modal{width:min(980px,100%);max-height:92vh;overflow:auto;background:var(--panel);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);padding:18px}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .full{grid-column:1 / -1}
+    label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--text)}
+    .star{position:absolute;top:12px;right:12px;background:none;border:none;padding:2px;font-size:20px;line-height:1}
+    .star.active{color:#fbbf24}
+    .footer{text-align:center;color:var(--muted);font-size:13px;padding:8px 0 6px}
+    code.inline{background:var(--input);padding:2px 6px;border-radius:6px;border:1px solid var(--border)}
+    @media (max-width:1450px){.toolbar{grid-template-columns:1fr 1fr 1fr}}
+    @media (max-width:1200px){.layout{grid-template-columns:1fr}}
+    @media (max-width:760px){.toolbar,.form-grid,.meta{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <section class="panel hero">
+    <div class="hero-top">
+      <div>
+        <h1>Utah Command Center v6</h1>
+        <div class="sub">Refactored to support richer link metadata and easier bulk import from Google Sheets. Best workflow: keep data in a sheet, then either export to CSV and import, or copy rows and paste TSV directly into the built-in importer.</div>
+        <div class="dashboard-tabs" id="dashboardTabs"></div>
+        <div class="stats">
+          <span class="pill" id="pillTotal">0 links</span>
+          <span class="pill" id="pillVisible">0 visible</span>
+          <span class="pill" id="pillCategories">0 categories</span>
+          <span class="pill" id="pillTheme">Theme: dark</span>
+          <span class="pill" id="pillDashboard">Dashboard: Work</span>
+        </div>
+      </div>
+    </div>
+    <div class="favorites-strip" id="favoritesStrip"></div>
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="Search project, chat, URL, company, type, tags..." />
+      <select id="categoryFilter"><option value="">All categories</option></select>
+      <select id="sortMode">
+        <option value="title">Sort: Project</option>
+        <option value="domain">Sort: Domain</option>
+        <option value="category">Sort: Category</option>
+        <option value="importance">Sort: Importance</option>
+      </select>
+      <button id="btnAddLink">Add link</button>
+      <button id="btnAddCategory">Add category</button>
+      <button id="btnAddDashboard">Add dashboard</button>
+      <button id="btnImportSheetData">Paste sheet rows</button>
+      <button id="btnExportJson">Export JSON</button>
+      <button id="btnImportJson">Import JSON/CSV</button>
+      <button id="btnReset">Reset data</button>
+      <button id="btnThemeToggle">🌙 Dark</button>
+    </div>
+    <input id="importFile" type="file" accept=".json,.csv,text/csv,application/json" class="hidden" />
+  </section>
+
+  <div class="layout">
+    <div class="main-col"><div id="categoriesHost"></div></div>
+    <aside class="panel section">
+      <h3 class="side-title">Admin panel</h3>
+      <div class="admin-card">
+        <div class="stack">
+          <button id="btnOpenBulkEditor">Bulk edit JSON</button>
+          <button id="btnCopyVisibleUrls">Copy visible URLs</button>
+          <button id="btnCopyVisibleTitles">Copy visible projects + URLs</button>
+        </div>
+        <div class="muted">Google Sheets import options:<br>1) export sheet as CSV and import the file<br>2) copy rows and use <strong>Paste sheet rows</strong></div>
+      </div>
+      <div style="height:12px;"></div>
+      <div class="admin-card">
+        <h4 style="margin:0;">Suggested Google Sheets columns</h4>
+        <div class="small">itemId, company, type, model, projectName, chatName, details, url, importance, additionalNotes, dashboard, category, tags, favorite</div>
+      </div>
+      <div style="height:12px;"></div>
+      <div class="admin-card"><h4 style="margin:0;">Dashboards</h4><div class="admin-list" id="dashboardAdminList"></div></div>
+      <div style="height:12px;"></div>
+      <div class="admin-card"><h4 style="margin:0;">Categories</h4><div class="admin-list" id="categoryAdminList"></div></div>
+      <div style="height:12px;"></div>
+      <div class="admin-card"><h4 style="margin:0;">Link order</h4><div class="small">Drag rows to reorder links in the current dashboard.</div><div class="admin-list" id="linkAdminList"></div></div>
+    </aside>
+  </div>
+
+  <div class="footer">This version includes your OpenAI chat links by default and can import Google Sheets style data.</div>
+</div>
+
+<div id="modalBackdrop" class="modal-backdrop">
+  <div class="modal">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px;">
+      <h3 id="modalTitle" style="margin:0;">Edit</h3>
+      <button id="btnCloseModal">Close</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+const seedData = [{"id": "l001", "itemId": "WORK_001", "company": "Utah", "type": "Portal", "model": "", "projectName": "Utah Employee Gateway", "chatName": "", "details": "State employee SSO gateway", "url": "https://gateway.utah.gov/", "importance": "High", "additionalNotes": "", "dashboard": "Work", "category": "Core Work", "tags": ["sso", "login", "utah"], "favorite": true}, {"id": "l002", "itemId": "WORK_002", "company": "Utah", "type": "Portal", "model": "", "projectName": "DTS Service Portal", "chatName": "", "details": "IT service desk portal", "url": "https://services.dts.utah.gov/esc", "importance": "High", "additionalNotes": "", "dashboard": "Work", "category": "Core Work", "tags": ["support", "dts", "it"], "favorite": true}, {"id": "l003", "itemId": "WORK_003", "company": "CGI", "type": "Jira", "model": "", "projectName": "UTADV4 Jira Project", "chatName": "", "details": "Advantage 4 project board", "url": "https://proactionus.ent.cgi.com/jira/projects/UTADV4/summary", "importance": "High", "additionalNotes": "", "dashboard": "Work", "category": "Core Work", "tags": ["jira", "advantage4", "utadv4"], "favorite": true}, {"id": "l004", "itemId": "WORK_004", "company": "Utah", "type": "Reference", "model": "", "projectName": "FINET SH1 API List", "chatName": "", "details": "Environment API list", "url": "https://finet-sh1.utah.gov/acsh1-utdgo/apilist.html", "importance": "Medium", "additionalNotes": "", "dashboard": "Work", "category": "FINET / Advantage 4", "tags": ["finet", "sh1", "api"], "favorite": false}, {"id": "ai001", "itemId": "AI_001", "company": "OpenAI", "type": "ChatGPT", "model": "Auto", "projectName": "TestSavvy Automation Intelligence", "chatName": "TestSavvy Script Analysis", "details": "This is a ChatGPT Agent that is capable of processing thousands of files and producting output that is critical to understanding current TestSavvy script functionalities.", "url": "https://chatgpt.com/share/69b6da8a-e9e8-800e-aea2-d06b5cd96692", "importance": "Highest", "additionalNotes": "", "dashboard": "AI", "category": "OpenAI Chats", "tags": ["chatgpt", "testsavvy", "agent"], "favorite": true}, {"id": "ai002", "itemId": "AI_002", "company": "OpenAI", "type": "ChatGPT", "model": "", "projectName": "Playwright for Advantage 4", "chatName": "", "details": "", "url": "https://chatgpt.com/share/69b319ab-2c10-800e-ab44-1af41ee156a2", "importance": "Medium", "additionalNotes": "", "dashboard": "AI", "category": "OpenAI Chats", "tags": ["chatgpt", "playwright", "advantage4"], "favorite": false}, {"id": "ai003", "itemId": "AI_003", "company": "OpenAI", "type": "ChatGPT", "model": "Auto", "projectName": "Oracle DB Queries", "chatName": "", "details": "", "url": "https://chatgpt.com/share/69b31c01-3068-800e-bb12-c5687bfc24e0", "importance": "High", "additionalNotes": "", "dashboard": "AI", "category": "OpenAI Chats", "tags": ["chatgpt", "oracle", "sql"], "favorite": true}, {"id": "ai004", "itemId": "AI_004", "company": "OpenAI", "type": "ChatGPT", "model": "Auto", "projectName": "JQL for Assigned Completed Issues", "chatName": "", "details": "", "url": "https://chatgpt.com/share/69b32cb4-5144-800e-811d-644d6f9829bf", "importance": "Medium", "additionalNotes": "", "dashboard": "AI", "category": "OpenAI Chats", "tags": ["chatgpt", "jira", "jql"], "favorite": false}, {"id": "ai005", "itemId": "AI_005", "company": "OpenAI", "type": "ChatGPT", "model": "Auto", "projectName": "TestSavvy Loader", "chatName": "", "details": "", "url": "https://chatgpt.com/share/69b34264-2c68-800e-b634-2e5dd4cc885c", "importance": "", "additionalNotes": "", "dashboard": "AI", "category": "OpenAI Chats", "tags": ["chatgpt", "testsavvy", "loader"], "favorite": false}, {"id": "ai006", "itemId": "AI_006", "company": "OpenAI", "type": "ChatGPT", "model": "", "projectName": "TestSavvy Agent Design", "chatName": "", "details": "", "url": "https://chatgpt.com/share/69b3475a-7f80-800e-a4d2-116f59ce06d0", "importance": "", "additionalNotes": "", "dashboard": "AI", "category": "OpenAI Chats", "tags": ["chatgpt", "testsavvy", "design"], "favorite": false}];
+const storageKey = 'utah_dashboard_v6_data';
+const themeStorageKey = 'utah_dashboard_v6_theme';
+const currentDashboardKey = 'utah_dashboard_v6_current_dashboard';
+const collapsedKey = 'utah_dashboard_v6_collapsed';
+const importanceRank = {"Highest":5,"High":4,"Medium":3,"Low":2,"Lowest":1,"":0};
+
+const dom = {
+  search: document.getElementById('search'),
+  categoryFilter: document.getElementById('categoryFilter'),
+  sortMode: document.getElementById('sortMode'),
+  categoriesHost: document.getElementById('categoriesHost'),
+  categoryAdminList: document.getElementById('categoryAdminList'),
+  dashboardAdminList: document.getElementById('dashboardAdminList'),
+  linkAdminList: document.getElementById('linkAdminList'),
+  dashboardTabs: document.getElementById('dashboardTabs'),
+  favoritesStrip: document.getElementById('favoritesStrip'),
+  pillTotal: document.getElementById('pillTotal'),
+  pillVisible: document.getElementById('pillVisible'),
+  pillCategories: document.getElementById('pillCategories'),
+  pillTheme: document.getElementById('pillTheme'),
+  pillDashboard: document.getElementById('pillDashboard'),
+  importFile: document.getElementById('importFile'),
+  modalBackdrop: document.getElementById('modalBackdrop'),
+  modalTitle: document.getElementById('modalTitle'),
+  modalBody: document.getElementById('modalBody'),
+  btnThemeToggle: document.getElementById('btnThemeToggle'),
+};
+
+function clone(obj){return JSON.parse(JSON.stringify(obj));}
+function loadData(){const saved=localStorage.getItem(storageKey);return saved?JSON.parse(saved):clone(seedData);}
+function saveData(){localStorage.setItem(storageKey,JSON.stringify(state.links,null,2));}
+function loadTheme(){const saved=localStorage.getItem(themeStorageKey);return saved==='light'||saved==='dark'?saved:'dark';}
+function saveTheme(theme){localStorage.setItem(themeStorageKey,theme);}
+function loadCurrentDashboard(){return localStorage.getItem(currentDashboardKey)||'Work';}
+function saveCurrentDashboard(value){localStorage.setItem(currentDashboardKey,value);}
+function loadCollapsed(){const saved=localStorage.getItem(collapsedKey);return saved?JSON.parse(saved):{};}
+function saveCollapsed(){localStorage.setItem(collapsedKey,JSON.stringify(state.collapsed));}
+function applyTheme(theme){document.documentElement.setAttribute('data-theme',theme);dom.btnThemeToggle.textContent=theme==='dark'?'🌙 Dark':'☀️ Light';dom.pillTheme.textContent='Theme: '+theme;saveTheme(theme);}
+function toggleTheme(){const current=document.documentElement.getAttribute('data-theme')||'dark';applyTheme(current==='dark'?'light':'dark');}
+function uid(){return 'l'+Math.random().toString(36).slice(2,10);}
+function getDomain(url){try{return new URL(url).hostname;}catch{return url;}}
+function faviconUrl(url){try{return 'https://www.google.com/s2/favicons?domain='+new URL(url).hostname+'&sz=32';}catch{return '';}}
+function normalizeRecord(item){
+  return {
+    id: item.id || uid(),
+    itemId: item.itemId || '',
+    company: item.company || '',
+    type: item.type || '',
+    model: item.model || '',
+    projectName: item.projectName || item.title || 'Untitled',
+    chatName: item.chatName || '',
+    details: item.details || item.purpose || '',
+    url: item.url || item.link || '',
+    importance: item.importance || '',
+    additionalNotes: item.additionalNotes || '',
+    dashboard: item.dashboard || 'Work',
+    category: item.category || 'General',
+    tags: Array.isArray(item.tags) ? item.tags : String(item.tags || '').split(',').map(x=>x.trim()).filter(Boolean),
+    favorite: !!item.favorite
+  };
+}
+
+const state = {
+  links: loadData().map(normalizeRecord),
+  currentDashboard: loadCurrentDashboard(),
+  collapsed: loadCollapsed(),
+};
+
+function dashboards(){return [...new Set(state.links.map(x => x.dashboard || 'Work'))].sort();}
+function categoriesForCurrentDashboard(){return [...new Set(state.links.filter(x => (x.dashboard||'Work')===state.currentDashboard).map(x=>x.category))].sort();}
+function normalized(item){return [item.dashboard,item.category,item.itemId,item.company,item.type,item.model,item.projectName,item.chatName,item.details,item.url,item.importance,item.additionalNotes,...(item.tags||[])].join(' ').toLowerCase();}
+function visibleLinks(){
+  const q=dom.search.value.trim().toLowerCase();
+  const cat=dom.categoryFilter.value;
+  let items=state.links.filter(item => (item.dashboard||'Work')===state.currentDashboard && (!q || normalized(item).includes(q)) && (!cat || item.category===cat));
+  const mode=dom.sortMode.value;
+  items=[...items].sort((a,b)=>{
+    if(mode==='domain') return getDomain(a.url).localeCompare(getDomain(b.url));
+    if(mode==='category') return (a.category+a.projectName).localeCompare(b.category+b.projectName);
+    if(mode==='importance') return (importanceRank[b.importance||'']||0) - (importanceRank[a.importance||'']||0) || a.projectName.localeCompare(b.projectName);
+    return a.projectName.localeCompare(b.projectName);
+  });
+  return items;
+}
+function groupedVisible(){const groups=new Map(); visibleLinks().forEach(item=>{if(!groups.has(item.category)) groups.set(item.category,[]); groups.get(item.category).push(item);}); return groups;}
+function favoritesForCurrentDashboard(){return state.links.filter(x => (x.dashboard||'Work')===state.currentDashboard && x.favorite);}
+function toggleFavorite(id){const item=state.links.find(x=>x.id===id); if(!item) return; item.favorite=!item.favorite; saveData(); render();}
+function toggleCategoryCollapse(category){const key=state.currentDashboard+'||'+category; state.collapsed[key]=!state.collapsed[key]; saveCollapsed(); render();}
+function isCollapsed(category){return !!state.collapsed[state.currentDashboard+'||'+category];}
+function switchDashboard(name){state.currentDashboard=name; saveCurrentDashboard(name); dom.categoryFilter.value=''; render();}
+function renderDashboardTabs(){dom.dashboardTabs.innerHTML=dashboards().map(name=>`<button class="tab-btn ${name===state.currentDashboard?'active':''}" onclick="switchDashboard('${name.replace(/'/g,"\\'")}')">${name}</button>`).join('');}
+function renderFavoritesStrip(){
+  const favs=favoritesForCurrentDashboard().slice(0,8);
+  dom.favoritesStrip.innerHTML=favs.map(item=>`<a class="fav-tile" href="${item.url}" target="_blank" rel="noopener noreferrer"><div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;"><img src="${faviconUrl(item.url)}" width="16" height="16" alt=""><strong>${item.projectName}</strong></div><div class="small">${item.category}</div></a>`).join('');
+}
+function renderFilters(){
+  const current=dom.categoryFilter.value;
+  const categories=categoriesForCurrentDashboard();
+  dom.categoryFilter.innerHTML='<option value="">All categories</option>'+categories.map(cat=>`<option value="${cat}">${cat}</option>`).join('');
+  if(categories.includes(current)) dom.categoryFilter.value=current;
+}
+function cardHtml(item){
+  return `<div class="card">
+    <button class="star ${item.favorite?'active':''}" title="Toggle favorite" onclick="toggleFavorite('${item.id}')">${item.favorite?'★':'☆'}</button>
+    <a class="title" href="${item.url}" target="_blank" rel="noopener noreferrer">${item.projectName}</a>
+    <div class="domain"><img src="${faviconUrl(item.url)}" width="14" height="14" alt=""> ${getDomain(item.url)}</div>
+    <div class="meta">
+      <div><strong>ID:</strong> ${item.itemId||''}</div>
+      <div><strong>Importance:</strong> ${item.importance||''}</div>
+      <div><strong>Company:</strong> ${item.company||''}</div>
+      <div><strong>Type/Model:</strong> ${[item.type,item.model].filter(Boolean).join(' / ')}</div>
+      <div style="grid-column:1 / -1;"><strong>Chat:</strong> ${item.chatName||''}</div>
+    </div>
+    <div class="purpose">${item.details || ''}</div>
+    <div class="tag-row">${(item.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+    <div class="card-actions">
+      <a class="mini-btn" href="${item.url}" target="_blank" rel="noopener noreferrer">Open</a>
+      <button class="mini-btn" onclick="openLinkEditor('${item.id}')">Edit</button>
+      <button class="mini-btn" onclick="duplicateLink('${item.id}')">Duplicate</button>
+      <button class="mini-btn" onclick="deleteLink('${item.id}')">Delete</button>
+    </div>
+  </div>`;
+}
+function renderCategories(){
+  const groups=groupedVisible();
+  const ordered=categoriesForCurrentDashboard().filter(c=>groups.has(c));
+  dom.categoriesHost.innerHTML=ordered.map(cat=>`<section class="category ${isCollapsed(cat)?'collapsed':''}">
+    <div class="category-header">
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <button class="mini-btn" onclick="toggleCategoryCollapse('${cat.replace(/'/g,"\\'")}')">${isCollapsed(cat)?'Expand':'Collapse'}</button>
+        <h2>${cat}</h2>
+        <span class="small">${groups.get(cat).length} visible</span>
+      </div>
+      <div class="stack">
+        <button class="mini-btn" onclick="renameCategoryPrompt('${encodeURIComponent(cat)}')">Rename category</button>
+        <button class="mini-btn" onclick="deleteCategoryPrompt('${encodeURIComponent(cat)}')">Delete category</button>
+      </div>
+    </div>
+    <div class="links-grid">${groups.get(cat).map(cardHtml).join('')}</div>
+  </section>`).join('');
+}
+function renderAdminLists(){
+  dom.dashboardAdminList.innerHTML=dashboards().map(name=>`<div class="admin-row"><span><div>${name}</div><div class="small">${state.links.filter(x=>(x.dashboard||'Work')===name).length} links</div></span><span class="stack"><button class="mini-btn" onclick="switchDashboard('${name.replace(/'/g,"\\'")}')">Open</button></span></div>`).join('');
+  dom.categoryAdminList.innerHTML=categoriesForCurrentDashboard().map(cat=>`<div class="admin-row"><span><div>${cat}</div><div class="small">${state.links.filter(x=>(x.dashboard||'Work')===state.currentDashboard && x.category===cat).length} links</div></span><span class="stack"><button class="mini-btn" onclick="renameCategoryPrompt('${encodeURIComponent(cat)}')">Rename</button></span></div>`).join('');
+  const items=state.links.filter(x=>(x.dashboard||'Work')===state.currentDashboard);
+  dom.linkAdminList.innerHTML=items.map(item=>`<div class="admin-row" draggable="true" data-id="${item.id}"><span style="min-width:0;"><div>${item.projectName}</div><div class="small">${item.category} • ${getDomain(item.url)}</div></span><span class="stack"><button class="mini-btn" onclick="openLinkEditor('${item.id}')">Edit</button></span></div>`).join('');
+  bindDragAndDrop();
+}
+function renderStats(){
+  dom.pillTotal.textContent=`${state.links.length} links`;
+  dom.pillVisible.textContent=`${visibleLinks().length} visible`;
+  dom.pillCategories.textContent=`${categoriesForCurrentDashboard().length} categories`;
+  dom.pillDashboard.textContent=`Dashboard: ${state.currentDashboard}`;
+}
+function render(){
+  if(!dashboards().includes(state.currentDashboard)){state.currentDashboard=dashboards()[0]||'Work'; saveCurrentDashboard(state.currentDashboard);}
+  renderDashboardTabs(); renderFavoritesStrip(); renderFilters(); renderCategories(); renderAdminLists(); renderStats();
+}
+function openModal(title, html){dom.modalTitle.textContent=title; dom.modalBody.innerHTML=html; dom.modalBackdrop.style.display='flex';}
+function closeModal(){dom.modalBackdrop.style.display='none'; dom.modalBody.innerHTML='';}
+document.getElementById('btnCloseModal').onclick=closeModal;
+dom.modalBackdrop.addEventListener('click',e=>{if(e.target===dom.modalBackdrop) closeModal();});
+
+function addOrUpdateLinkFromForm(formId, existingId=null){
+  const form=document.getElementById(formId);
+  const fd=new FormData(form);
+  const item=normalizeRecord({
+    id: existingId || uid(),
+    itemId: fd.get('itemId'),
+    company: fd.get('company'),
+    type: fd.get('type'),
+    model: fd.get('model'),
+    projectName: fd.get('projectName'),
+    chatName: fd.get('chatName'),
+    details: fd.get('details'),
+    url: fd.get('url'),
+    importance: fd.get('importance'),
+    additionalNotes: fd.get('additionalNotes'),
+    dashboard: fd.get('dashboard'),
+    category: fd.get('category'),
+    tags: fd.get('tags'),
+    favorite: fd.get('favorite') === 'on'
+  });
+  if(!item.dashboard || !item.category || !item.projectName || !item.url) return alert('Dashboard, category, project name, and URL are required.');
+  if(existingId){ const idx=state.links.findIndex(x=>x.id===existingId); if(idx>=0) state.links[idx]=item; } else { state.links.push(item); }
+  saveData(); render(); closeModal();
+}
+function openLinkEditor(id=null){
+  const item=id ? state.links.find(x=>x.id===id) : normalizeRecord({dashboard: state.currentDashboard, category: '', tags: [], favorite:false});
+  openModal(id?'Edit link':'Add link', `
+    <form id="linkForm" onsubmit="event.preventDefault(); addOrUpdateLinkFromForm('linkForm', ${id ? `'${id}'` : 'null'});">
+      <div class="form-grid">
+        <label>Dashboard<input name="dashboard" list="dashboardsDatalist" value="${item.dashboard||state.currentDashboard}" /></label>
+        <label>Category<input name="category" list="categoriesDatalist" value="${item.category||''}" /></label>
+        <label>Item ID<input name="itemId" value="${item.itemId||''}" /></label>
+        <label>Company<input name="company" value="${item.company||''}" /></label>
+        <label>Type<input name="type" value="${item.type||''}" /></label>
+        <label>Model<input name="model" value="${item.model||''}" /></label>
+        <label class="full">Project / Agent Name<input name="projectName" value="${item.projectName||''}" /></label>
+        <label class="full">Chat Name<input name="chatName" value="${item.chatName||''}" /></label>
+        <label class="full">URL<input name="url" value="${item.url||''}" placeholder="https://..." /></label>
+        <label>Importance<select name="importance">
+          <option value="" ${!item.importance?'selected':''}></option>
+          <option value="Highest" ${item.importance==='Highest'?'selected':''}>Highest</option>
+          <option value="High" ${item.importance==='High'?'selected':''}>High</option>
+          <option value="Medium" ${item.importance==='Medium'?'selected':''}>Medium</option>
+          <option value="Low" ${item.importance==='Low'?'selected':''}>Low</option>
+          <option value="Lowest" ${item.importance==='Lowest'?'selected':''}>Lowest</option>
+        </select></label>
+        <label>Tags<input name="tags" value="${(item.tags||[]).join(', ')}" placeholder="tag1, tag2" /></label>
+        <label class="full">Details<textarea name="details">${item.details||''}</textarea></label>
+        <label class="full">Additional Notes<textarea name="additionalNotes">${item.additionalNotes||''}</textarea></label>
+        <label class="full" style="flex-direction:row; align-items:center; gap:8px;"><input type="checkbox" name="favorite" ${item.favorite?'checked':''}> Favorite</label>
+      </div>
+      <datalist id="categoriesDatalist">${categoriesForCurrentDashboard().map(cat=>`<option value="${cat}"></option>`).join('')}</datalist>
+      <datalist id="dashboardsDatalist">${dashboards().map(name=>`<option value="${name}"></option>`).join('')}</datalist>
+      <div class="stack" style="margin-top:14px;"><button type="submit">${id?'Save changes':'Add link'}</button><button type="button" onclick="closeModal()">Cancel</button></div>
+    </form>
+  `);
+}
+function duplicateLink(id){
+  const item=state.links.find(x=>x.id===id); if(!item) return;
+  const dup=normalizeRecord({...item,id:uid(),itemId:(item.itemId||'')+'_COPY',favorite:false});
+  state.links.push(dup); saveData(); render();
+}
+function deleteLink(id){const item=state.links.find(x=>x.id===id); if(!item) return; if(!confirm(`Delete "${item.projectName}"?`)) return; state.links=state.links.filter(x=>x.id!==id); saveData(); render();}
+function addCategoryPrompt(){openModal('Add category', `<form id="categoryForm" onsubmit="event.preventDefault(); submitAddCategory();"><div class="form-grid"><label class="full">Category name<input id="newCategoryName" /></label></div><div class="stack" style="margin-top:14px;"><button type="submit">Add category</button><button type="button" onclick="closeModal()">Cancel</button></div></form>`);}
+function submitAddCategory(){const value=document.getElementById('newCategoryName').value.trim(); if(!value) return alert('Enter a category name.'); openLinkEditor(); closeModal();}
+function addDashboardPrompt(){openModal('Add dashboard', `<form id="dashboardForm" onsubmit="event.preventDefault(); submitAddDashboard();"><div class="form-grid"><label class="full">Dashboard name<input id="newDashboardName" /></label></div><div class="stack" style="margin-top:14px;"><button type="submit">Add dashboard</button><button type="button" onclick="closeModal()">Cancel</button></div></form>`);}
+function submitAddDashboard(){const value=document.getElementById('newDashboardName').value.trim(); if(!value) return alert('Enter a dashboard name.'); state.currentDashboard=value; saveCurrentDashboard(value); closeModal(); openLinkEditor();}
+function renameCategoryPrompt(encodedCat){const oldName=decodeURIComponent(encodedCat); openModal('Rename category', `<form id="renameCategoryForm" onsubmit="event.preventDefault(); submitRenameCategory('${oldName.replace(/'/g,"\\'")}');"><div class="form-grid"><label class="full">Old name<input value="${oldName}" disabled /></label><label class="full">New name<input id="renameCategoryInput" value="${oldName}" /></label></div><div class="stack" style="margin-top:14px;"><button type="submit">Rename</button><button type="button" onclick="closeModal()">Cancel</button></div></form>`);}
+function submitRenameCategory(oldName){const newName=document.getElementById('renameCategoryInput').value.trim(); if(!newName) return alert('Enter a new category name.'); state.links.forEach(item=>{if((item.dashboard||'Work')===state.currentDashboard && item.category===oldName) item.category=newName;}); saveData(); render(); closeModal();}
+function deleteCategoryPrompt(encodedCat){const cat=decodeURIComponent(encodedCat); const count=state.links.filter(x=>(x.dashboard||'Work')===state.currentDashboard && x.category===cat).length; openModal('Delete category', `<div class="muted" style="margin-bottom:12px;">Category <strong>${cat}</strong> has <strong>${count}</strong> links.</div><form id="deleteCategoryForm" onsubmit="event.preventDefault(); submitDeleteCategory('${cat.replace(/'/g,"\\'")}');"><label class="full">Move links to category<input id="moveCategoryInput" list="categoriesDatalist2" /></label><datalist id="categoriesDatalist2">${categoriesForCurrentDashboard().filter(x=>x!==cat).map(name=>`<option value="${name}"></option>`).join('')}</datalist><div class="stack" style="margin-top:14px;"><button type="submit">Delete category and move links</button><button type="button" onclick="closeModal()">Cancel</button></div></form>`);}
+function submitDeleteCategory(cat){const moveTo=document.getElementById('moveCategoryInput').value.trim(); if(!moveTo) return alert('Enter a destination category.'); state.links.forEach(item=>{if((item.dashboard||'Work')===state.currentDashboard && item.category===cat) item.category=moveTo;}); saveData(); render(); closeModal();}
+function openBulkEditor(){openModal('Bulk edit JSON', `<div class="muted" style="margin-bottom:10px;">Edit the entire dataset as JSON. Keep it as an array of link objects.</div><textarea id="bulkJsonArea" style="min-height:420px;">${JSON.stringify(state.links,null,2).replace(/</g,'&lt;')}</textarea><div class="stack" style="margin-top:14px;"><button onclick="saveBulkJson()">Save JSON</button><button type="button" onclick="closeModal()">Cancel</button></div>`);}
+function saveBulkJson(){try{const parsed=JSON.parse(document.getElementById('bulkJsonArea').value); if(!Array.isArray(parsed)) throw new Error('JSON must be an array.'); state.links=parsed.map(normalizeRecord); saveData(); render(); closeModal();}catch(err){alert('Invalid JSON: '+err.message);}}
+function exportJson(){const blob=new Blob([JSON.stringify(state.links,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='utah_work_dashboard_v6_data.json'; a.click(); URL.revokeObjectURL(url);}
+function parseCsv(text){
+  const rows=[]; let row=[]; let cur=''; let inQuotes=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i], next=text[i+1];
+    if(ch === '"'){ if(inQuotes && next === '"'){ cur += '"'; i++; } else { inQuotes = !inQuotes; } }
+    else if(ch === ',' && !inQuotes){ row.push(cur); cur=''; }
+    else if((ch === '\n' || ch === '\r') && !inQuotes){
+      if(ch === '\r' && next === '\n') i++;
+      row.push(cur); rows.push(row); row=[]; cur='';
+    } else { cur += ch; }
+  }
+  if(cur.length || row.length){ row.push(cur); rows.push(row); }
+  return rows.filter(r => r.some(c => String(c).trim() !== ''));
+}
+function importDelimitedRows(text, mode){
+  let rows = [];
+  if(mode === 'tsv'){
+    rows = text.split(/\r?\n/).filter(Boolean).map(line => line.split('\t'));
+  } else {
+    rows = parseCsv(text);
+  }
+  if(!rows.length) return alert('No rows found.');
+  const headers = rows[0].map(h => String(h).trim());
+  const out = [];
+  for(let i=1;i<rows.length;i++){
+    const obj = {};
+    headers.forEach((h, idx) => obj[h] = (rows[i][idx] || '').trim());
+    out.push(normalizeRecord({
+      itemId: obj.itemId || obj['Item ID'],
+      company: obj.company || obj['Company'],
+      type: obj.type || obj['Type'],
+      model: obj.model || obj['Model'],
+      projectName: obj.projectName || obj['Gem/Project/Agent Name'] || obj['Project Name'] || obj['Title'],
+      chatName: obj.chatName || obj['Chat Name'],
+      details: obj.details || obj['Details'],
+      url: obj.url || obj['Link'] || obj['URL'],
+      importance: obj.importance || obj['Importance'],
+      additionalNotes: obj.additionalNotes || obj['Additional Notes'],
+      dashboard: obj.dashboard || obj['Dashboard'] || 'AI',
+      category: obj.category || obj['Category'] || 'Imported',
+      tags: obj.tags || obj['Tags'] || '',
+      favorite: /true|yes|1/i.test(obj.favorite || obj['Favorite'] || '')
+    }));
+  }
+  const valid = out.filter(x => x.projectName && x.url);
+  state.links = [...state.links, ...valid];
+  saveData();
+  render();
+  closeModal();
+  alert(valid.length + ' links imported.');
+}
+function openSheetPasteImporter(){
+  openModal('Paste Google Sheets rows', `
+    <div class="muted" style="margin-bottom:10px;">Copy rows directly from Google Sheets and paste them here. Tab-separated data works best.</div>
+    <div class="small" style="margin-bottom:10px;">Expected columns: <code class="inline">Item ID</code>, <code class="inline">Company</code>, <code class="inline">Type</code>, <code class="inline">Model</code>, <code class="inline">Gem/Project/Agent Name</code>, <code class="inline">Chat Name</code>, <code class="inline">Details</code>, <code class="inline">Link</code>, <code class="inline">Importance</code>, <code class="inline">Additional Notes</code>. Optional extra columns: dashboard, category, tags, favorite.</div>
+    <textarea id="sheetPasteArea" style="min-height:340px;" placeholder="Paste copied Google Sheets rows here..."></textarea>
+    <div class="stack" style="margin-top:14px;">
+      <button onclick="importDelimitedRows(document.getElementById('sheetPasteArea').value, 'tsv')">Import pasted rows</button>
+      <button type="button" onclick="closeModal()">Cancel</button>
+    </div>
+  `);
+}
+function importJsonOrCsvFile(file){
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      if(file.name.toLowerCase().endsWith('.json')){
+        const parsed = JSON.parse(reader.result);
+        if(!Array.isArray(parsed)) throw new Error('JSON must be an array.');
+        state.links = [...state.links, ...parsed.map(normalizeRecord)];
+      } else {
+        importDelimitedRows(reader.result, 'csv');
+        return;
+      }
+      saveData(); render(); alert('Import completed.');
+    } catch(err){ alert('Import failed: ' + err.message); }
+  };
+  reader.readAsText(file);
+}
+async function copyVisibleUrls(){await navigator.clipboard.writeText(visibleLinks().map(x=>x.url).join('\n')); alert('Visible URLs copied.');}
+async function copyVisibleTitles(){await navigator.clipboard.writeText(visibleLinks().map(x=>`${x.projectName} | ${x.url}`).join('\n')); alert('Visible projects and URLs copied.');}
+function bindDragAndDrop(){
+  const rows=[...dom.linkAdminList.querySelectorAll('.admin-row[draggable="true"]')]; let draggedId=null;
+  rows.forEach(row=>{
+    row.addEventListener('dragstart',()=>{draggedId=row.dataset.id; row.style.opacity='.5';});
+    row.addEventListener('dragend',()=>{row.style.opacity='1';});
+    row.addEventListener('dragover',e=>{e.preventDefault();});
+    row.addEventListener('drop',e=>{e.preventDefault(); const targetId=row.dataset.id; if(!draggedId || draggedId===targetId) return; reorderWithinDashboard(draggedId,targetId); draggedId=null;});
+  });
+}
+function reorderWithinDashboard(draggedId,targetId){
+  const current=state.links.filter(x=>(x.dashboard||'Work')===state.currentDashboard);
+  const others=state.links.filter(x=>(x.dashboard||'Work')!==state.currentDashboard);
+  const draggedIndex=current.findIndex(x=>x.id===draggedId);
+  const targetIndex=current.findIndex(x=>x.id===targetId);
+  if(draggedIndex<0 || targetIndex<0) return;
+  const [moved]=current.splice(draggedIndex,1); current.splice(targetIndex,0,moved);
+  state.links=[...others,...current]; saveData(); render();
+}
+
+document.getElementById('btnAddLink').onclick=()=>openLinkEditor();
+document.getElementById('btnAddCategory').onclick=addCategoryPrompt;
+document.getElementById('btnAddDashboard').onclick=addDashboardPrompt;
+document.getElementById('btnImportSheetData').onclick=openSheetPasteImporter;
+document.getElementById('btnExportJson').onclick=exportJson;
+document.getElementById('btnImportJson').onclick=()=>dom.importFile.click();
+document.getElementById('btnReset').onclick=()=>{if(confirm('Reset dashboard data back to the original seed links?')){state.links=clone(seedData).map(normalizeRecord); saveData(); render();}};
+document.getElementById('btnOpenBulkEditor').onclick=openBulkEditor;
+document.getElementById('btnCopyVisibleUrls').onclick=copyVisibleUrls;
+document.getElementById('btnCopyVisibleTitles').onclick=copyVisibleTitles;
+dom.btnThemeToggle.onclick=toggleTheme;
+dom.importFile.addEventListener('change',e=>{const file=e.target.files[0]; if(file) importJsonOrCsvFile(file); e.target.value='';});
+dom.search.addEventListener('input',render);
+dom.categoryFilter.addEventListener('change',render);
+dom.sortMode.addEventListener('change',render);
+document.addEventListener('keydown',e=>{if(e.key==='/' && document.activeElement!==dom.search){e.preventDefault(); dom.search.focus();}});
+
+applyTheme(loadTheme());
+render();
+</script>
+</body>
+</html>
