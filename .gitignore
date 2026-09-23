@@ -1,0 +1,7 @@
+# Vault data and personal settings stay on the local computer.
+vault-data/
+vault-backups/
+config.local.json
+__pycache__/
+*.py[cod]
+.DS_Store

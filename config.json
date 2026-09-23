@@ -1,0 +1,15 @@
+{
+  "server": {
+    "host": "127.0.0.1",
+    "port": 8765
+  },
+  "storage": {
+    "directory": "./vault-data",
+    "vault_filename": "utah_command_center_vault.json",
+    "backup_directory": "./vault-backups",
+    "keep_backups": 30
+  },
+  "autosave": {
+    "debounce_ms": 900
+  }
+}

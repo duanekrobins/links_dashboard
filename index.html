@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Utah Command Center v9 - Local Vault</title>
+<style>
+  :root{
+    --bg:#0b1220; --panel:#101827; --panel2:#12213a; --text:#eef5ff; --muted:#9eb4d4;
+    --line:#284263; --accent:#65a9ff; --accent2:#7dd3fc; --danger:#ff6b6b; --ok:#63e6be;
+    --warn:#ffd43b; --chip:#0e2442; --shadow:0 20px 50px rgba(0,0,0,.35);
+  }
+  body.light{
+    --bg:#eef5ff; --panel:#ffffff; --panel2:#f8fbff; --text:#0b1220; --muted:#4c6688;
+    --line:#c9d8eb; --accent:#2563eb; --accent2:#0284c7; --danger:#dc2626; --ok:#059669;
+    --warn:#ca8a04; --chip:#edf4ff; --shadow:0 15px 45px rgba(15,23,42,.12);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(135deg,var(--bg),#07101d);color:var(--text);font-family:Segoe UI,Arial,sans-serif;font-size:14px;line-height:1.35}
+  body.light{background:linear-gradient(135deg,#f4f8ff,#e7f0ff)}
+  .wrap{max-width:1680px;margin:20px auto;padding:0 18px 60px}
+  .hero,.section,.sidebox{background:rgba(16,24,39,.94);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}
+  body.light .hero, body.light .section, body.light .sidebox{background:rgba(255,255,255,.94)}
+  .hero{padding:22px;margin-bottom:16px}
+  h1{font-size:32px;margin:0 0 8px} h2{font-size:22px;margin:0} h3{font-size:16px;margin:0 0 10px}
+  .sub{color:var(--muted);font-size:15px;max-width:1000px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.between{display:flex;justify-content:space-between;gap:12px;align-items:center}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.chip{border:1px solid var(--line);background:var(--chip);border-radius:999px;padding:7px 12px;color:var(--text);cursor:pointer}.chip.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(101,169,255,.15)}
+  .pill{border:1px solid var(--line);background:var(--chip);border-radius:999px;padding:6px 10px;color:var(--accent2);font-size:13px}.pill.warn{color:var(--warn)}.pill.ok{color:var(--ok)}.pill.bad{color:var(--danger)}
+  button,input,select,textarea{font:inherit}button{border:1px solid var(--line);background:#071327;color:var(--text);border-radius:10px;padding:10px 14px;cursor:pointer}body.light button{background:#fff}button:hover{border-color:var(--accent)}button.primary{background:linear-gradient(135deg,#1d4ed8,#0284c7);border-color:#60a5fa;color:#fff}button.danger{border-color:rgba(255,107,107,.65);color:#ffd7d7}button.small{padding:6px 9px;border-radius:8px;font-size:12px}
+  input,select,textarea{border:1px solid var(--line);background:#071327;color:var(--text);border-radius:10px;padding:10px 12px;min-width:0}body.light input,body.light select,body.light textarea{background:#fff}textarea{width:100%;min-height:100px;resize:vertical}.toolbar{display:grid;grid-template-columns:minmax(210px,1fr) 150px 140px repeat(10,auto);gap:10px;margin-top:10px}.toolbar button,.toolbar select{white-space:nowrap}
+  .main{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px}.section{padding:16px;margin-bottom:14px}.sidebox{padding:16px;margin-bottom:14px}.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}.card{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px;position:relative}.card h3{padding-right:28px}.meta{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;color:var(--muted);font-size:12px;margin:8px 0}.url{color:var(--accent2);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tags{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}.tag{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:4px 8px;background:rgba(255,255,255,.04)}.star{position:absolute;top:14px;right:14px;background:none;border:0;padding:0;font-size:20px;color:var(--warn)}
+  .dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}.dash-tile{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer}.dash-tile.active{border-color:var(--accent)}.empty{color:var(--muted);padding:20px;border:1px dashed var(--line);border-radius:12px;text-align:center}.admin-grid{display:grid;gap:10px}.listline{display:flex;justify-content:space-between;gap:8px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:9px;background:var(--panel2)}
+  .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:50;align-items:center;justify-content:center;padding:18px}.modal-backdrop.show{display:flex}.modal{width:min(900px,96vw);max-height:92vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:18px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}.field.full{grid-column:1/-1}.field input,.field select,.field textarea{width:100%}.help{font-size:12px;color:var(--muted);margin-top:5px}.toast{position:fixed;right:16px;bottom:16px;z-index:100;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow);display:none;max-width:460px}.toast.show{display:block}.toast.good{border-color:var(--ok)}.toast.bad{border-color:var(--danger)}.toast.warn{border-color:var(--warn)}
+  .vault-warning{border:1px solid rgba(255,212,59,.55);background:rgba(255,212,59,.08);border-radius:12px;padding:10px;margin-top:12px;color:var(--warn)}
+  @media(max-width:1100px){.main{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div class="between">
+      <div>
+        <h1>Utah Command Center v9</h1>
+        <div class="sub">Your configured local vault loads when this page opens. Changes save to disk automatically, with rolling backups. The browser cache is a recovery copy.</div>
+      </div>
+      <div class="row"><span id="dirtyPill" class="pill ok">Saved</span><span id="vaultPill" class="pill warn">No vault file open</span></div>
+    </div>
+    <div id="dashboardChips" class="chips"></div>
+    <div class="chips" id="statsChips"></div>
+    <div class="dash-grid" id="dashboardTiles"></div>
+    <div class="toolbar">
+      <input id="searchBox" placeholder="Search project, chat, URL, company, tags..." />
+      <select id="categoryFilter"></select>
+      <select id="sortBy"><option value="projectName">Sort: Project</option><option value="updatedAt">Sort: Updated</option><option value="importance">Sort: Importance</option><option value="company">Sort: Company</option><option value="type">Sort: Type</option></select>
+      <button class="primary" id="openVaultBtn">Replace from JSON</button>
+      <button id="saveVaultBtn">Save now</button>
+      <button id="saveAsVaultBtn">Download vault</button>
+      <button id="reloadVaultBtn">Reload disk</button>
+      <button id="recoverCacheBtn" style="display:none">Recover cached edits</button>
+      <button id="addLinkBtn">Add link</button>
+      <button id="addCategoryBtn">Add category</button>
+      <button id="addDashboardBtn">Add dashboard</button>
+      <button id="importBtn">Import JSON/CSV</button>
+      <button id="backupBtn">Download backup</button>
+      <button id="themeBtn">🌙 Dark</button>
+    </div>
+    <div id="vaultWarning" class="vault-warning">Connecting to local vault…</div>
+  </div>
+
+  <div class="main">
+    <div id="sections"></div>
+    <aside>
+      <div class="sidebox">
+        <h2>Vault controls</h2>
+        <div class="admin-grid" style="margin-top:12px">
+          <button id="exportJsonBtn">Export full JSON</button>
+          <button id="copyVisibleBtn">Copy visible URLs</button>
+          <button id="copyVisibleProjectsBtn">Copy visible projects + URLs</button>
+          <button id="bulkEditBtn">Bulk edit full JSON</button>
+        </div>
+        <p class="help">Start app.py, edit here, and changes save automatically. Choose the storage and backup folders in config.json. Download backup before major bulk changes.</p>
+      </div>
+      <div class="sidebox">
+        <h2>Dashboards</h2>
+        <div id="dashboardAdmin" class="admin-grid" style="margin-top:12px"></div>
+      </div>
+      <div class="sidebox">
+        <h2>Categories</h2>
+        <div id="categoryAdmin" class="admin-grid" style="margin-top:12px"></div>
+      </div>
+      <div class="sidebox">
+        <h2>Suggested columns</h2>
+        <p class="help">itemId, company, type, model, projectName, chatName, details, url, importance, additionalNotes, dashboard, category, tags, favorite, updatedAt</p>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<input id="fileInput" type="file" accept=".json,.csv,application/json,text/csv" style="display:none" />
+<div id="modalBackdrop" class="modal-backdrop"><div class="modal" id="modal"></div></div>
+<div id="toast" class="toast"></div>
+
+<script>
+(() => {
+'use strict';
+const APP_VERSION = '9.0.0';
+const CACHE_KEY = 'utah_command_center_v9_cache';
+const OLD_KEYS = ['utah_command_center_v8_cache','utah_dashboard_v6_data','utah_command_center_v7_store','utah_dashboard_v7_data'];
+const nowIso = () => new Date().toISOString();
+const uid = (prefix='ID') => prefix + '_' + Math.random().toString(36).slice(2,8).toUpperCase() + '_' + Date.now().toString(36).toUpperCase();
+const clone = obj => JSON.parse(JSON.stringify(obj));
+let dirty = false;
+let serverConnected = false;
+let vaultRevision = null;
+let vaultPath = '';
+let autosaveDelay = 900;
+let autosaveTimer = null;
+let saveInFlight = false;
+let conflict = false;
+let cacheRecovery = null;
+let visibleLinks = [];
+let state = defaultStore();
+let ui = { dashboard:'AI', search:'', category:'all', sortBy:'projectName', theme: localStorage.getItem('utah_v8_theme') || 'dark' };
+
+function defaultStore(){
+  const t = nowIso();
+  return {
+    app:'Utah Command Center', version:APP_VERSION, updatedAt:t,
+    dashboards:[
+      {dashboardId:'DASH_AI', name:'AI', description:'AI tools, prompts, and assistants', order:1, createdAt:t, updatedAt:t},
+      {dashboardId:'DASH_WORK', name:'Work', description:'Utah / work systems', order:2, createdAt:t, updatedAt:t}
+    ],
+    categories:[
+      {categoryId:'CAT_CORE', name:'Core Work', dashboard:'Work', description:'Core work systems', order:1, createdAt:t, updatedAt:t},
+      {categoryId:'CAT_GENERAL', name:'General', dashboard:'Work', description:'General work links', order:2, createdAt:t, updatedAt:t},
+      {categoryId:'CAT_AI', name:'AI Tools', dashboard:'AI', description:'AI related links', order:1, createdAt:t, updatedAt:t}
+    ],
+    links:[
+      {id:'SAMPLE_001', itemId:'SAMPLE_001', projectName:'Example Domain', company:'Example', type:'Reference', model:'', chatName:'', details:'Replace this example with your own link.', url:'https://example.com/', importance:'Medium', additionalNotes:'', dashboard:'Work', category:'General', tags:['sample'], favorite:false, createdAt:t, updatedAt:t},
+      {id:'SAMPLE_002', itemId:'SAMPLE_002', projectName:'Example Organization', company:'Example', type:'Reference', model:'', chatName:'', details:'Replace this example with your own link.', url:'https://example.org/', importance:'Medium', additionalNotes:'', dashboard:'AI', category:'AI Tools', tags:['sample'], favorite:false, createdAt:t, updatedAt:t},
+      {id:'SAMPLE_003', itemId:'SAMPLE_003', projectName:'IANA Reserved Domains', company:'Example', type:'Reference', model:'', chatName:'', details:'Replace this example with your own link.', url:'https://www.iana.org/domains/reserved', importance:'Medium', additionalNotes:'', dashboard:'AI', category:'AI Tools', tags:['sample'], favorite:false, createdAt:t, updatedAt:t}
+    ]
+  };
+}
+
+const $ = id => document.getElementById(id);
+function toast(msg, kind='good'){
+  const el = $('toast'); el.textContent = msg; el.className = 'toast show ' + kind;
+  clearTimeout(toast._timer); toast._timer = setTimeout(()=>el.className='toast', 4200);
+}
+function setDirty(value=true){ dirty=value; $('dirtyPill').textContent = conflict ? 'Save conflict' : dirty ? 'Unsaved changes' : serverConnected ? 'Saved on disk' : 'No disk connection'; $('dirtyPill').className = 'pill ' + (conflict?'bad':dirty||!serverConnected?'warn':'ok'); }
+function setVaultLabel(name){ $('vaultPill').textContent = name ? 'Vault: ' + name : 'Local vault offline'; $('vaultPill').className = 'pill ' + (serverConnected?'ok':'warn'); }
+function safeText(s){ return String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function normalizeTags(tags){ if(Array.isArray(tags)) return tags.map(x=>String(x).trim()).filter(Boolean); return String(tags||'').split(',').map(x=>x.trim()).filter(Boolean); }
+function keyify(s){ return String(s||'').trim().toLowerCase(); }
+function recordKey(item){ return keyify(item.itemId || item.id || item.url || item.projectName); }
+function parseBool(v){ return v===true || /^(true|yes|y|1|starred|favorite)$/i.test(String(v||'').trim()); }
+function ensureArray(x){ return Array.isArray(x) ? x : []; }
+
+function normalizeDashboard(d){
+  const t = nowIso(); const name = String(d.name || d.dashboard || d.title || '').trim();
+  return { dashboardId: d.dashboardId || d.id || uid('DASH'), name: name || 'Dashboard', description: d.description || '', order: Number(d.order||999), createdAt: d.createdAt || t, updatedAt: d.updatedAt || t };
+}
+function normalizeCategory(c){
+  const t = nowIso(); const name = String(c.name || c.category || c.title || '').trim();
+  return { categoryId: c.categoryId || c.id || uid('CAT'), name: name || 'Category', dashboard: c.dashboard || ui.dashboard || 'Work', description: c.description || '', order: Number(c.order||999), createdAt: c.createdAt || t, updatedAt: c.updatedAt || t };
+}
+function normalizeLink(item){
+  const t = nowIso(); const itemId = String(item.itemId || item.id || '').trim() || uid('LINK');
+  return {
+    id: item.id || itemId, itemId,
+    company: item.company || item.Company || '', type: item.type || item.Type || '', model: item.model || item.Model || '',
+    projectName: item.projectName || item['Project Name'] || item['Gem/Project/Agent Name'] || item.title || item.name || '',
+    chatName: item.chatName || item['Chat Name'] || '', details: item.details || item.Details || item.description || '',
+    url: item.url || item.URL || item.Link || item.link || '', importance: item.importance || item.Importance || 'Medium',
+    additionalNotes: item.additionalNotes || item['Additional Notes'] || item.notes || '',
+    dashboard: item.dashboard || item.Dashboard || ui.dashboard || 'Work', category: item.category || item.Category || 'General',
+    tags: normalizeTags(item.tags || item.Tags), favorite: parseBool(item.favorite || item.Favorite),
+    createdAt: item.createdAt || item['Created At'] || t, updatedAt: item.updatedAt || item.modifiedAt || item['Updated At'] || item['Modified At'] || t
+  };
+}
+function normalizeStore(input){
+  let obj = input;
+  if(Array.isArray(obj)) obj = {links: obj};
+  if(obj && !Array.isArray(obj) && !obj.links){
+    const maybe = obj.items || obj.data || obj.records || obj.rows;
+    if(Array.isArray(maybe)) obj = {links: maybe, dashboards: obj.dashboards, categories: obj.categories};
+  }
+  if(!obj || typeof obj !== 'object') throw new Error('JSON did not contain a usable object or array.');
+  if(!Array.isArray(obj.links)) throw new Error('JSON must contain a links array.');
+  const dashboards = ensureArray(obj.dashboards).map(normalizeDashboard);
+  const categories = ensureArray(obj.categories).map(normalizeCategory);
+  const links = ensureArray(obj.links).map(normalizeLink).filter(x => x.projectName || x.url);
+  // Infer missing dashboards/categories from links so older exports still work.
+  const dashNames = new Map(dashboards.map(d=>[keyify(d.name),d]));
+  links.forEach(l=>{ if(l.dashboard && !dashNames.has(keyify(l.dashboard))){ const d=normalizeDashboard({name:l.dashboard}); dashboards.push(d); dashNames.set(keyify(d.name),d); }});
+  const catKeys = new Map(categories.map(c=>[keyify(c.dashboard)+'|'+keyify(c.name),c]));
+  links.forEach(l=>{ const k=keyify(l.dashboard)+'|'+keyify(l.category); if(l.category && !catKeys.has(k)){ const c=normalizeCategory({name:l.category,dashboard:l.dashboard}); categories.push(c); catKeys.set(k,c); }});
+  return {app: obj.app || 'Utah Command Center', version: APP_VERSION, updatedAt: obj.updatedAt || nowIso(), dashboards, categories, links};
+}
+function mergeBy(existing, incoming, keyFn){
+  const map = new Map();
+  existing.forEach(x=>map.set(keyFn(x), x));
+  incoming.forEach(x=>{
+    const k=keyFn(x); if(!k) return;
+    const old=map.get(k);
+    if(!old){ map.set(k,x); return; }
+    const oldDate=Date.parse(old.updatedAt||'')||0, newDate=Date.parse(x.updatedAt||'')||0;
+    map.set(k, newDate >= oldDate ? {...old,...x} : old);
+  });
+  return Array.from(map.values());
+}
+function mergeStore(base, incoming){
+  const next = clone(base);
+  next.dashboards = mergeBy(next.dashboards, incoming.dashboards, d=>keyify(d.name));
+  next.categories = mergeBy(next.categories, incoming.categories, c=>keyify(c.dashboard)+'|'+keyify(c.name));
+  next.links = mergeBy(next.links, incoming.links, recordKey);
+  next.version = APP_VERSION; next.updatedAt = nowIso();
+  return normalizeStore(next);
+}
+function cacheSave(){ localStorage.setItem(CACHE_KEY, JSON.stringify(state)); }
+function cacheLoad(){ const raw = localStorage.getItem(CACHE_KEY); return raw ? normalizeStore(JSON.parse(raw)) : null; }
+function migrateOldData(){
+  for(const key of OLD_KEYS){
+    const raw = localStorage.getItem(key); if(!raw) continue;
+    try { return normalizeStore(JSON.parse(raw)); } catch(e){ console.warn('Old key migration failed', key, e); }
+  }
+  return null;
+}
+async function readDiskVault(){
+  const response = await fetch('/api/vault', {cache:'no-store'});
+  if(!response.ok) throw new Error('Local vault service returned HTTP '+response.status);
+  const result = await response.json();
+  if(!result.vault || !result.revision) throw new Error('Incomplete response from local vault service');
+  return result;
+}
+async function loadDiskVault(checkRecovery=false){
+  const [configResponse, result] = await Promise.all([fetch('/api/config', {cache:'no-store'}), readDiskVault()]);
+  if(!configResponse.ok) throw new Error('Cannot read local configuration');
+  const config = await configResponse.json();
+  const diskState = normalizeStore(result.vault);
+  if(checkRecovery && Date.parse(state.updatedAt||'') > Date.parse(diskState.updatedAt||'')){
+    cacheRecovery = clone(state);
+    $('recoverCacheBtn').style.display = '';
+    toast('Newer cached edits found. Use Recover cached edits to review and save them.','warn');
+  }else{
+    cacheRecovery = null;
+    $('recoverCacheBtn').style.display = 'none';
+  }
+  state = diskState;
+  vaultRevision = result.revision;
+  vaultPath = config.vault_path;
+  autosaveDelay = Number(config.debounce_ms) || 900;
+  serverConnected = true;
+  conflict = false;
+  if(!cacheRecovery) cacheSave();
+  setVaultLabel(vaultPath);
+  setDirty(false);
+  render();
+}
+async function boot(){
+  let hadCache=false;
+  try{ const cached=cacheLoad() || migrateOldData(); hadCache=!!cached; state=cached || defaultStore(); }
+  catch(e){ state = defaultStore(); toast('Cache was unreadable. Start the local service or import a backup.','bad'); }
+  applyTheme(ui.theme); setVaultLabel(null); setDirty(true); render();
+  try{ await loadDiskVault(hadCache); }
+  catch(e){ serverConnected=false; setVaultLabel(null); setDirty(true); render(); toast('Start app.py to connect to the local vault. '+e.message,'bad'); }
+}
+
+function applyTheme(theme){ ui.theme = theme; document.body.classList.toggle('light', theme==='light'); $('themeBtn').textContent = theme==='light' ? '☀️ Light' : '🌙 Dark'; localStorage.setItem('utah_v8_theme', theme); }
+function touch(){
+  state.updatedAt = nowIso();
+  cacheSave();
+  setDirty(true);
+  render();
+  scheduleAutoSave();
+}
+function scheduleAutoSave(delay=autosaveDelay){
+  clearTimeout(autosaveTimer);
+  if(!vaultRevision || conflict) return;
+  autosaveTimer = setTimeout(()=>saveVault(false), delay);
+}
+async function saveVault(manual=true){
+  clearTimeout(autosaveTimer);
+  if(conflict){ if(manual) toast('Vault changed elsewhere. Download a backup, then Reload disk.','bad'); return; }
+  if(!vaultRevision){ if(manual) toast('Start app.py and reload the page to connect to a vault.','bad'); return; }
+  if(saveInFlight){ if(manual) scheduleAutoSave(250); return; }
+  if(!dirty){ if(manual) toast('Already saved on disk.','good'); return; }
+  saveInFlight=true;
+  const snapshot=JSON.stringify(state);
+  $('dirtyPill').textContent='Saving…';
+  try{
+    const response=await fetch('/api/vault', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({revision:vaultRevision,vault:JSON.parse(snapshot)})});
+    const result=await response.json();
+    if(response.status===409){ conflict=true; throw new Error('Another tab or program changed the vault. Download a backup before reloading disk.'); }
+    if(!response.ok) throw new Error(result.error || 'Save failed (HTTP '+response.status+')');
+    vaultRevision=result.revision;
+    serverConnected=true;
+    setVaultLabel(vaultPath);
+    if(JSON.stringify(state)===snapshot){ setDirty(false); cacheSave(); }
+    else{ setDirty(true); scheduleAutoSave(250); }
+    if(manual) toast('Vault saved on disk.','good');
+  }catch(e){
+    if(!conflict) serverConnected=false;
+    setVaultLabel(vaultPath);
+    setDirty(true);
+    if(manual || conflict) toast(e.message,'bad');
+    if(!conflict) scheduleAutoSave(5000);
+  }finally{ saveInFlight=false; render(); }
+}
+function saveRecord(type, record, oldName){
+  if(type==='dashboard'){
+    const adding = !oldName;
+    record = normalizeDashboard(record);
+    record.name = String(record.name || '').trim();
+    if(!record.name) { toast('Dashboard name is required.','bad'); return; }
+
+    const oldKey = oldName ? keyify(oldName) : '';
+    const newKey = keyify(record.name);
+    const idx = state.dashboards.findIndex(d =>
+      (oldKey && keyify(d.name)===oldKey) ||
+      (record.dashboardId && d.dashboardId===record.dashboardId)
+    );
+
+    const duplicateIdx = state.dashboards.findIndex((d,i)=> keyify(d.name)===newKey && i!==idx);
+    if(duplicateIdx >= 0){ toast('A dashboard with that name already exists.','bad'); return; }
+
+    if(idx>=0){
+      const previousName = state.dashboards[idx].name;
+      state.dashboards[idx] = {...state.dashboards[idx], ...record, updatedAt:nowIso()};
+      if(previousName !== record.name){
+        state.categories.forEach(c=>{ if(c.dashboard===previousName) c.dashboard = record.name; });
+        state.links.forEach(l=>{ if(l.dashboard===previousName) l.dashboard = record.name; });
+        if(ui.dashboard===previousName) ui.dashboard = record.name;
+      }
+    } else {
+      state.dashboards.push({...record, createdAt:record.createdAt||nowIso(), updatedAt:nowIso()});
+    }
+
+    // New dashboards must be first-class records even when they have zero links.
+    // Also create a default General category and switch the UI to the new dashboard so the save is visible immediately.
+    ensureDashboardCategory(record.name, 'General');
+    ui.dashboard = record.name;
+    ui.category = 'all';
+  }
+
+  if(type==='category'){
+    record = normalizeCategory(record);
+    record.name = String(record.name || '').trim();
+    record.dashboard = String(record.dashboard || ui.dashboard || 'Work').trim();
+    if(!record.name) { toast('Category name is required.','bad'); return; }
+    if(!record.dashboard) { toast('Dashboard is required.','bad'); return; }
+
+    ensureDashboardCategory(record.dashboard, null);
+    const oldKey = oldName ? oldName : '';
+    const newKey = keyify(record.dashboard)+'|'+keyify(record.name);
+    const idx = state.categories.findIndex(c=>
+      (oldKey && (keyify(c.dashboard)+'|'+keyify(c.name))===oldKey) ||
+      (record.categoryId && c.categoryId===record.categoryId)
+    );
+    const duplicateIdx = state.categories.findIndex((c,i)=> (keyify(c.dashboard)+'|'+keyify(c.name))===newKey && i!==idx);
+    if(duplicateIdx >= 0){ toast('That category already exists on this dashboard.','bad'); return; }
+
+    if(idx>=0){
+      const prev = state.categories[idx];
+      state.categories[idx] = {...prev, ...record, updatedAt:nowIso()};
+      if(prev.name!==record.name || prev.dashboard!==record.dashboard){
+        state.links.forEach(l=>{
+          if(l.category===prev.name && l.dashboard===prev.dashboard){
+            l.category = record.name;
+            l.dashboard = record.dashboard;
+          }
+        });
+      }
+    } else {
+      state.categories.push({...record, createdAt:record.createdAt||nowIso(), updatedAt:nowIso()});
+    }
+    ui.dashboard = record.dashboard;
+    ui.category = record.name;
+  }
+
+  if(type==='link'){
+    record = normalizeLink(record); record.updatedAt = nowIso();
+    const idx = state.links.findIndex(l=>oldName ? (l.id===oldName || l.itemId===oldName) : recordKey(l)===recordKey(record));
+    if(idx>=0) state.links[idx] = {...state.links[idx], ...record}; else state.links.push({...record, createdAt:nowIso()});
+    ensureDashboardCategory(record.dashboard, record.category);
+    ui.dashboard = record.dashboard;
+    ui.category = record.category;
+  }
+  touch();
+}
+function ensureDashboardCategory(dash, cat){
+  dash = String(dash || '').trim();
+  cat = cat == null ? null : String(cat || '').trim();
+  if(dash && !state.dashboards.some(d=>keyify(d.name)===keyify(dash))){
+    state.dashboards.push(normalizeDashboard({dashboardId:uid('DASH'), name:dash, createdAt:nowIso(), updatedAt:nowIso()}));
+  }
+  if(dash && cat && !state.categories.some(c=>keyify(c.dashboard)===keyify(dash)&&keyify(c.name)===keyify(cat))){
+    state.categories.push(normalizeCategory({categoryId:uid('CAT'), name:cat, dashboard:dash, createdAt:nowIso(), updatedAt:nowIso()}));
+  }
+}
+function deleteDashboard(name){
+  if(!confirm('Delete dashboard "'+name+'"? Links will move to Work / General.')) return;
+  state.dashboards = state.dashboards.filter(d=>d.name!==name);
+  state.categories = state.categories.filter(c=>c.dashboard!==name);
+  state.links.forEach(l=>{ if(l.dashboard===name){ l.dashboard='Work'; l.category='General'; }});
+  if(ui.dashboard===name) ui.dashboard = state.dashboards[0]?.name || 'Work'; ensureDashboardCategory('Work','General'); touch();
+}
+function deleteCategory(category, dashboard){
+  if(!confirm('Delete category "'+category+'"? Links will move to General.')) return;
+  state.categories = state.categories.filter(c=>!(c.name===category && c.dashboard===dashboard));
+  state.links.forEach(l=>{ if(l.category===category && l.dashboard===dashboard) l.category='General'; });
+  ensureDashboardCategory(dashboard,'General'); touch();
+}
+function deleteLink(id){ if(confirm('Delete this link?')){ state.links = state.links.filter(l=>l.id!==id && l.itemId!==id); touch(); } }
+function duplicateLink(id){ const l=state.links.find(x=>x.id===id||x.itemId===id); if(!l) return; const copy={...clone(l), id:uid('LINK'), itemId:uid('LINK'), projectName:l.projectName+' Copy', createdAt:nowIso(), updatedAt:nowIso()}; state.links.push(copy); touch(); }
+
+function getFilteredLinks(){
+  const q = keyify(ui.search); let arr = state.links.filter(l => l.dashboard === ui.dashboard);
+  if(ui.category !== 'all') arr = arr.filter(l => l.category === ui.category);
+  if(q) arr = arr.filter(l => [l.projectName,l.chatName,l.url,l.company,l.type,l.model,l.details,l.additionalNotes,(l.tags||[]).join(',')].some(v=>keyify(v).includes(q)));
+  arr.sort((a,b)=>{
+    if(ui.sortBy==='updatedAt') return (Date.parse(b.updatedAt)||0)-(Date.parse(a.updatedAt)||0);
+    if(ui.sortBy==='importance') return importanceRank(b.importance)-importanceRank(a.importance);
+    return keyify(a[ui.sortBy]).localeCompare(keyify(b[ui.sortBy]));
+  });
+  return arr;
+}
+function importanceRank(v){ return {highest:5,high:4,medium:3,low:2,lowest:1}[keyify(v)] || 0; }
+function render(){
+  if(!state.dashboards.length) state.dashboards.push(normalizeDashboard({name:'Work'}));
+  if(!state.dashboards.some(d=>d.name===ui.dashboard)) ui.dashboard = state.dashboards[0].name;
+  visibleLinks = getFilteredLinks();
+  renderChips(); renderDashboardTiles(); renderFilters(); renderSections(); renderAdmin();
+  $('vaultWarning').style.display = dirty || !serverConnected || !!cacheRecovery ? 'block' : 'none';
+  $('vaultWarning').textContent = conflict ? 'Save conflict: this vault changed in another tab or on disk. Download a backup of your changes, then use Reload disk.'
+    : cacheRecovery ? 'A newer browser cache was found. Review the Recover cached edits option before continuing.'
+    : !serverConnected ? 'No disk connection. Start app.py from this package and open its local dashboard address. Changes in this browser are not saved to disk yet.'
+    : 'Unsaved changes are waiting to be written to the local vault. You can also press Save now.';
+}
+function renderChips(){
+  $('dashboardChips').innerHTML = state.dashboards.sort((a,b)=>(a.order||999)-(b.order||999)||a.name.localeCompare(b.name)).map(d=>`<button class="chip ${d.name===ui.dashboard?'active':''}" data-dash="${safeText(d.name)}">${safeText(d.name)}</button>`).join('');
+  $('statsChips').innerHTML = `<span class="pill">${state.links.length} links</span><span class="pill">${visibleLinks.length} visible</span><span class="pill">${state.dashboards.length} dashboards</span><span class="pill">${state.categories.length} categories</span><span class="pill">Updated: ${safeText(new Date(state.updatedAt||Date.now()).toLocaleString())}</span>`;
+}
+function renderDashboardTiles(){
+  const top = state.links.filter(l=>l.dashboard===ui.dashboard && l.favorite).slice(0,4);
+  $('dashboardTiles').innerHTML = top.length ? top.map(l=>`<div class="dash-tile" data-open="${safeText(l.id)}"><strong>${safeText(l.projectName)}</strong><br><span class="help">${safeText(l.category||'General')}</span></div>`).join('') : `<div class="empty">No favorite links on this dashboard yet.</div>`;
+}
+function renderFilters(){
+  const cats = state.categories.filter(c=>c.dashboard===ui.dashboard).sort((a,b)=>(a.order||999)-(b.order||999)||a.name.localeCompare(b.name));
+  $('categoryFilter').innerHTML = `<option value="all">All categories</option>` + cats.map(c=>`<option ${ui.category===c.name?'selected':''}>${safeText(c.name)}</option>`).join('');
+  $('searchBox').value = ui.search; $('sortBy').value = ui.sortBy;
+}
+function renderSections(){
+  const cats = state.categories.filter(c=>c.dashboard===ui.dashboard).sort((a,b)=>(a.order||999)-(b.order||999)||a.name.localeCompare(b.name));
+  const byCat = new Map(cats.map(c=>[c.name, []])); visibleLinks.forEach(l=>{ if(!byCat.has(l.category)) byCat.set(l.category, []); byCat.get(l.category).push(l); });
+  const html = Array.from(byCat.entries()).filter(([cat,links])=>ui.category==='all'||cat===ui.category).map(([cat,links])=>sectionHtml(cat,links)).join('');
+  $('sections').innerHTML = html || `<div class="section"><div class="empty">No links found. Add a link or import your vault/backup.</div></div>`;
+}
+function sectionHtml(cat, links){
+  const catObj = state.categories.find(c=>c.name===cat && c.dashboard===ui.dashboard) || {name:cat,dashboard:ui.dashboard};
+  return `<div class="section"><div class="between"><div class="row"><button class="small" data-collapse="${safeText(cat)}">Collapse</button><h2>${safeText(cat)}</h2><span class="help">${links.length} visible</span></div><div class="row"><button class="small" data-edit-category="${safeText(cat)}">Edit category</button><button class="small danger" data-delete-category="${safeText(cat)}">Delete category</button></div></div><div class="cards">${links.map(cardHtml).join('') || `<div class="empty">This category exists but has no visible links.</div>`}</div></div>`;
+}
+function cardHtml(l){
+  return `<div class="card"><button class="star" data-star="${safeText(l.id)}">${l.favorite?'★':'☆'}</button><h3>${safeText(l.projectName||'(Untitled link)')}</h3><div class="url">🌐 ${safeText((l.url||'').replace(/^https?:\/\//,''))}</div><div class="meta"><div>ID: ${safeText(l.itemId||l.id)}</div><div>Importance: ${safeText(l.importance)}</div><div>Company: ${safeText(l.company)}</div><div>Type/Model: ${safeText(l.type||l.model)}</div><div>Chat: ${safeText(l.chatName)}</div><div>Updated: ${safeText(l.updatedAt ? new Date(l.updatedAt).toLocaleDateString() : '')}</div></div><div>${safeText(l.details)}</div><div class="tags">${(l.tags||[]).map(t=>`<span class="tag">${safeText(t)}</span>`).join('')}</div><div class="row"><button class="small" data-open-link="${safeText(l.id)}">Open</button><button class="small" data-edit-link="${safeText(l.id)}">Edit</button><button class="small" data-dup-link="${safeText(l.id)}">Duplicate</button><button class="small danger" data-del-link="${safeText(l.id)}">Delete</button></div></div>`;
+}
+function renderAdmin(){
+  $('dashboardAdmin').innerHTML = state.dashboards.map(d=>`<div class="listline"><div><strong>${safeText(d.name)}</strong><br><span class="help">${state.links.filter(l=>l.dashboard===d.name).length} links</span></div><div class="row"><button class="small" data-admin-open-dash="${safeText(d.name)}">Open</button><button class="small" data-edit-dashboard="${safeText(d.name)}">Edit</button></div></div>`).join('');
+  $('categoryAdmin').innerHTML = state.categories.filter(c=>c.dashboard===ui.dashboard).map(c=>`<div class="listline"><div><strong>${safeText(c.name)}</strong><br><span class="help">${state.links.filter(l=>l.dashboard===c.dashboard&&l.category===c.name).length} links</span></div><button class="small" data-edit-category="${safeText(c.name)}">Edit</button></div>`).join('') || '<div class="empty">No categories.</div>';
+}
+
+function modal(title, body, actions){ $('modal').innerHTML = `<div class="between"><h2>${safeText(title)}</h2><button id="closeModalBtn">Close</button></div><div style="margin-top:14px">${body}</div><div class="row" style="justify-content:flex-end;margin-top:14px">${actions||''}</div>`; $('modalBackdrop').classList.add('show'); $('closeModalBtn').onclick=closeModal; }
+function closeModal(){ $('modalBackdrop').classList.remove('show'); }
+function field(name,label,value='',type='text',full=false){ return `<div class="field ${full?'full':''}"><label>${safeText(label)}</label><input name="${safeText(name)}" type="${type}" value="${safeText(value)}" /></div>`; }
+function selectField(name,label,value,options,full=false){ return `<div class="field ${full?'full':''}"><label>${safeText(label)}</label><select name="${safeText(name)}">${options.map(o=>`<option ${o===value?'selected':''}>${safeText(o)}</option>`).join('')}</select></div>`; }
+function textField(name,label,value='',full=true){ return `<div class="field ${full?'full':''}"><label>${safeText(label)}</label><textarea name="${safeText(name)}">${safeText(value)}</textarea></div>`; }
+function formValues(form){ return Object.fromEntries(new FormData(form).entries()); }
+function editDashboard(name){
+  const existing = name ? state.dashboards.find(x=>x.name===name) : null;
+  const d = existing ? clone(existing) : {dashboardId:uid('DASH'), name:'', description:'', order:(state.dashboards.length+1)*10, createdAt:nowIso(), updatedAt:nowIso()};
+  const oldName = existing ? existing.name : '';
+  modal(existing?'Edit dashboard':'Add dashboard', `<form id="editForm" class="form-grid" onsubmit="return false;">${field('dashboardId','Dashboard ID',d.dashboardId)}${field('name','Dashboard name',d.name||'')}${field('order','Order',d.order||999,'number')}${field('description','Description',d.description||'', 'text', true)}</form>`, `<button type="button" class="primary" id="saveModalBtn">Save dashboard</button>${existing?`<button type="button" class="danger" id="deleteModalBtn">Delete dashboard</button>`:''}`);
+  $('saveModalBtn').onclick=()=>{ const v=formValues($('editForm')); if(!v.name.trim()) return toast('Dashboard name is required.','bad'); saveRecord('dashboard',v,oldName); closeModal(); toast('Dashboard saved.','good'); };
+  if(existing) $('deleteModalBtn').onclick=()=>{ closeModal(); deleteDashboard(name); };
+}
+function editCategory(name){
+  const existing = name ? state.categories.find(x=>x.name===name && x.dashboard===ui.dashboard) : null;
+  const c = existing ? clone(existing) : {categoryId:uid('CAT'), name:'', dashboard:ui.dashboard, description:'', order:(state.categories.filter(x=>x.dashboard===ui.dashboard).length+1)*10, createdAt:nowIso(), updatedAt:nowIso()};
+  const oldKey = existing ? keyify(existing.dashboard)+'|'+keyify(existing.name) : '';
+  modal(existing?'Edit category':'Add category', `<form id="editForm" class="form-grid" onsubmit="return false;">${field('categoryId','Category ID',c.categoryId)}${field('name','Category name',c.name||'')}${selectField('dashboard','Dashboard',c.dashboard||ui.dashboard,state.dashboards.map(d=>d.name))}${field('order','Order',c.order||999,'number')}${field('description','Description',c.description||'', 'text', true)}</form>`, `<button type="button" class="primary" id="saveModalBtn">Save category</button>${existing?`<button type="button" class="danger" id="deleteModalBtn">Delete category</button>`:''}`);
+  $('saveModalBtn').onclick=()=>{ const v=formValues($('editForm')); if(!v.name.trim()) return toast('Category name is required.','bad'); saveRecord('category',v,oldKey); closeModal(); toast('Category saved.','good'); };
+  if(existing) $('deleteModalBtn').onclick=()=>{ closeModal(); deleteCategory(name,ui.dashboard); };
+}
+function editLink(id){
+  const l = id ? state.links.find(x=>x.id===id||x.itemId===id) : normalizeLink({dashboard:ui.dashboard,category:ui.category==='all'?'General':ui.category});
+  const dashOptions = state.dashboards.map(d=>d.name); const catOptions = state.categories.filter(c=>c.dashboard===(l.dashboard||ui.dashboard)).map(c=>c.name); if(!catOptions.includes(l.category)) catOptions.push(l.category||'General');
+  modal(id?'Edit link':'Add link', `<form id="editForm" class="form-grid">
+    ${field('itemId','Item ID',l.itemId||uid('LINK'))}${field('projectName','Project / link name',l.projectName||'')}
+    ${field('url','URL',l.url||'', 'url', true)}
+    ${selectField('dashboard','Dashboard',l.dashboard||ui.dashboard,dashOptions)}${selectField('category','Category',l.category||'General',catOptions)}
+    ${field('company','Company',l.company||'')}${field('type','Type',l.type||'')}${field('model','Model',l.model||'')}${field('importance','Importance',l.importance||'Medium')}
+    ${field('chatName','Chat name',l.chatName||'', 'text', true)}${textField('details','Details',l.details||'', true)}${textField('additionalNotes','Additional notes',l.additionalNotes||'', true)}
+    ${field('tags','Tags comma-separated',(l.tags||[]).join(', '), 'text', true)}<div class="field"><label>Favorite</label><select name="favorite"><option ${l.favorite?'selected':''}>true</option><option ${!l.favorite?'selected':''}>false</option></select></div>
+  </form>`, `<button class="primary" id="saveModalBtn">Save link</button>${id?`<button class="danger" id="deleteModalBtn">Delete link</button>`:''}`);
+  $('saveModalBtn').onclick=()=>{ const v=formValues($('editForm')); if(!v.projectName.trim()) return toast('Project/link name is required.','bad'); if(!v.url.trim()) return toast('URL is required.','bad'); v.url=v.url.trim(); v.id = l.id || v.itemId; v.tags=normalizeTags(v.tags); v.favorite=parseBool(v.favorite); saveRecord('link',v,id); closeModal(); toast('Link saved.','good'); };
+  if(id) $('deleteModalBtn').onclick=()=>{ closeModal(); deleteLink(id); };
+}
+function bulkEdit(){ modal('Bulk edit full JSON', `<textarea id="bulkJson" style="min-height:60vh">${safeText(JSON.stringify(state,null,2))}</textarea><p class="help">This accepts either full store JSON or an array of links. It will normalize and replace the current store.</p>`, `<button class="primary" id="applyBulkBtn">Apply JSON</button>`); $('applyBulkBtn').onclick=()=>{ try{ state=normalizeStore(JSON.parse($('bulkJson').value)); touch(); closeModal(); toast('Bulk JSON applied.','good'); }catch(e){ toast(e.message,'bad'); }}; }
+
+function openVault(){ if(conflict) return toast('Resolve the save conflict before replacing data.','bad'); $('fileInput').dataset.mode='openVault'; $('fileInput').click(); }
+function saveAsVault(){ downloadText('utah_command_center_v9_vault.json', JSON.stringify(state,null,2), 'application/json'); toast('Vault JSON downloaded.','good'); }
+async function reloadVault(){
+  if(saveInFlight) return toast('Wait for the current save to finish.','warn');
+  if(dirty && !confirm('Download a backup of your current changes and reload the saved vault from disk?')) return;
+  if(dirty) backup();
+  clearTimeout(autosaveTimer);
+  try{ await loadDiskVault(false); toast('Reloaded vault from disk.','good'); }
+  catch(e){ toast('Reload failed: '+e.message,'bad'); }
+}
+function downloadText(filename, text, type='text/plain'){ const blob=new Blob([text],{type}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},1000); }
+function backup(){ downloadText('utah_command_center_backup_'+new Date().toISOString().replace(/[:.]/g,'-')+'.json', JSON.stringify(state,null,2), 'application/json'); }
+function exportJson(){ downloadText('utah_command_center_export.json', JSON.stringify(state,null,2), 'application/json'); }
+function parseCsv(text){
+  const rows=[]; let row=[], cell='', q=false;
+  for(let i=0;i<text.length;i++){ const c=text[i], n=text[i+1]; if(q){ if(c==='"'&&n==='"'){cell+='"'; i++;} else if(c==='"') q=false; else cell+=c; } else { if(c==='"') q=true; else if(c===','){row.push(cell); cell='';} else if(c==='\n'){row.push(cell); rows.push(row); row=[]; cell='';} else if(c!=='\r') cell+=c; }} row.push(cell); if(row.some(x=>x.trim())) rows.push(row); return rows;
+}
+function csvToLinks(text){ const rows=parseCsv(text); if(!rows.length) return []; const headers=rows[0].map(h=>h.trim()); return rows.slice(1).map(r=>{ const obj={}; headers.forEach((h,i)=>obj[h]=r[i]||''); return normalizeLink(obj); }); }
+async function importFile(file){
+  try{ const text=await file.text(); let incoming; if(file.name.toLowerCase().endsWith('.csv')) incoming=normalizeStore({links:csvToLinks(text)}); else incoming=normalizeStore(JSON.parse(text)); state=mergeStore(state,incoming); touch(); toast('Imported and merged '+incoming.links.length+' links, '+incoming.dashboards.length+' dashboards, '+incoming.categories.length+' categories.','good'); }
+  catch(e){ toast('Import failed: '+e.message,'bad'); }
+}
+function copyText(text,msg){ if(!navigator.clipboard?.writeText) return modal('Copy manually',`<textarea>${safeText(text)}</textarea>`,''); navigator.clipboard.writeText(text).then(()=>toast(msg,'good')).catch(()=>{ modal('Copy manually',`<textarea>${safeText(text)}</textarea>`,''); }); }
+function openUrl(id){ const l=state.links.find(x=>x.id===id||x.itemId===id); if(!l?.url) return; const url=l.url.trim(); if(!/^https?:\/\//i.test(url)) return toast('This bookmark is a local path, not an openable web URL. Edit its URL or use the path directly.','warn'); window.open(url,'_blank','noopener'); }
+
+function bind(){
+  document.addEventListener('click', e=>{
+    const t=e.target;
+    if(t.dataset.dash){ ui.dashboard=t.dataset.dash; ui.category='all'; render(); }
+    if(t.dataset.open) openUrl(t.dataset.open); if(t.dataset.openLink) openUrl(t.dataset.openLink);
+    if(t.dataset.editLink) editLink(t.dataset.editLink); if(t.dataset.delLink) deleteLink(t.dataset.delLink); if(t.dataset.dupLink) duplicateLink(t.dataset.dupLink);
+    if(t.dataset.star){ const l=state.links.find(x=>x.id===t.dataset.star); if(l){ l.favorite=!l.favorite; l.updatedAt=nowIso(); touch(); }}
+    if(t.dataset.editDashboard) editDashboard(t.dataset.editDashboard); if(t.dataset.adminOpenDash){ ui.dashboard=t.dataset.adminOpenDash; ui.category='all'; render(); }
+    if(t.dataset.editCategory) editCategory(t.dataset.editCategory); if(t.dataset.deleteCategory) deleteCategory(t.dataset.deleteCategory, ui.dashboard);
+  });
+  $('searchBox').addEventListener('input', e=>{ ui.search=e.target.value; render(); });
+  $('categoryFilter').addEventListener('change', e=>{ ui.category=e.target.value; render(); });
+  $('sortBy').addEventListener('change', e=>{ ui.sortBy=e.target.value; render(); });
+  $('themeBtn').onclick=()=>applyTheme(ui.theme==='light'?'dark':'light');
+  $('addLinkBtn').onclick=()=>editLink(null); $('addDashboardBtn').onclick=()=>editDashboard(null); $('addCategoryBtn').onclick=()=>editCategory(null);
+  $('openVaultBtn').onclick=openVault; $('saveVaultBtn').onclick=()=>saveVault(true); $('saveAsVaultBtn').onclick=saveAsVault; $('reloadVaultBtn').onclick=reloadVault; $('backupBtn').onclick=backup; $('exportJsonBtn').onclick=exportJson;
+  $('recoverCacheBtn').onclick=()=>{ if(!cacheRecovery || !confirm('Replace the current view with newer browser cached edits and save them to disk?')) return; state=cacheRecovery; cacheRecovery=null; $('recoverCacheBtn').style.display='none'; touch(); };
+  $('bulkEditBtn').onclick=bulkEdit; $('importBtn').onclick=()=>{ $('fileInput').dataset.mode='import'; $('fileInput').click(); };
+  $('fileInput').onchange=e=>{ const file=e.target.files[0]; if(!file) return; const mode=e.target.dataset.mode; e.target.value=''; if(mode==='openVault'){ file.text().then(text=>{ const next=normalizeStore(JSON.parse(text)); if(!confirm('Replace the current vault with '+file.name+'? A copy of the previous vault is kept in the backup folder when saved.')) return; state=next; touch(); toast('JSON loaded. Saving to configured vault…','good'); }).catch(err=>toast(err.message,'bad')); } else importFile(file); };
+  $('copyVisibleBtn').onclick=()=>copyText(visibleLinks.map(l=>l.url).join('\n'),'Visible URLs copied.');
+  $('copyVisibleProjectsBtn').onclick=()=>copyText(visibleLinks.map(l=>`${l.projectName} - ${l.url}`).join('\n'),'Visible projects + URLs copied.');
+  window.addEventListener('beforeunload', e=>{ if(dirty){ e.preventDefault(); e.returnValue='You have unsaved dashboard changes.'; }});
+  document.addEventListener('keydown', e=>{ if(e.ctrlKey && e.key.toLowerCase()==='s'){ e.preventDefault(); saveVault(true); } if(e.key==='Escape') closeModal(); });
+}
+
+bind(); boot();
+})();
+</script>
+</body>
+</html>

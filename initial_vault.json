@@ -1,0 +1,108 @@
+{
+  "app": "Utah Command Center",
+  "version": "9.0.0",
+  "updatedAt": "2026-09-23T00:00:00.000Z",
+  "dashboards": [
+    {
+      "dashboardId": "DASH_WORK",
+      "name": "Work",
+      "description": "Example work bookmarks",
+      "order": 1,
+      "createdAt": "2026-09-23T00:00:00.000Z",
+      "updatedAt": "2026-09-23T00:00:00.000Z"
+    },
+    {
+      "dashboardId": "DASH_AI",
+      "name": "AI",
+      "description": "Example learning bookmarks",
+      "order": 2,
+      "createdAt": "2026-09-23T00:00:00.000Z",
+      "updatedAt": "2026-09-23T00:00:00.000Z"
+    }
+  ],
+  "categories": [
+    {
+      "categoryId": "CAT_GENERAL",
+      "name": "General",
+      "dashboard": "Work",
+      "description": "Example bookmarks",
+      "order": 1,
+      "createdAt": "2026-09-23T00:00:00.000Z",
+      "updatedAt": "2026-09-23T00:00:00.000Z"
+    },
+    {
+      "categoryId": "CAT_REFERENCE",
+      "name": "Reference",
+      "dashboard": "AI",
+      "description": "Example resources",
+      "order": 1,
+      "createdAt": "2026-09-23T00:00:00.000Z",
+      "updatedAt": "2026-09-23T00:00:00.000Z"
+    }
+  ],
+  "links": [
+    {
+      "id": "SAMPLE_001",
+      "itemId": "SAMPLE_001",
+      "company": "Example",
+      "type": "Reference",
+      "model": "",
+      "projectName": "Example Domain",
+      "chatName": "",
+      "details": "Replace this example with your own link.",
+      "url": "https://example.com/",
+      "importance": "Medium",
+      "additionalNotes": "",
+      "dashboard": "Work",
+      "category": "General",
+      "tags": [
+        "sample"
+      ],
+      "favorite": false,
+      "createdAt": "2026-09-23T00:00:00.000Z",
+      "updatedAt": "2026-09-23T00:00:00.000Z"
+    },
+    {
+      "id": "SAMPLE_002",
+      "itemId": "SAMPLE_002",
+      "company": "Example",
+      "type": "Reference",
+      "model": "",
+      "projectName": "Example Organization",
+      "chatName": "",
+      "details": "Replace this example with your own link.",
+      "url": "https://example.org/",
+      "importance": "Medium",
+      "additionalNotes": "",
+      "dashboard": "AI",
+      "category": "Reference",
+      "tags": [
+        "sample"
+      ],
+      "favorite": false,
+      "createdAt": "2026-09-23T00:00:00.000Z",
+      "updatedAt": "2026-09-23T00:00:00.000Z"
+    },
+    {
+      "id": "SAMPLE_003",
+      "itemId": "SAMPLE_003",
+      "company": "Example",
+      "type": "Reference",
+      "model": "",
+      "projectName": "IANA Reserved Domains",
+      "chatName": "",
+      "details": "Replace this example with your own link.",
+      "url": "https://www.iana.org/domains/reserved",
+      "importance": "Medium",
+      "additionalNotes": "",
+      "dashboard": "AI",
+      "category": "Reference",
+      "tags": [
+        "sample"
+      ],
+      "favorite": false,
+      "createdAt": "2026-09-23T00:00:00.000Z",
+      "updatedAt": "2026-09-23T00:00:00.000Z"
+    }
+  ]
+}
